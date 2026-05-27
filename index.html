@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>思辨之秤：買櫝還珠的價值悖論</title>
+  
+  <!-- Tailwind CSS 適用於現代化、響應式佈局 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons 適用於簡潔優雅的圖示 -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* 以「翠綠、漆黑、暖金」為基調，營造出尊貴的「珠寶與木盒」哲學感 */
+    body {
+      background-color: #fcfbf7;
+      background-image: url('https://www.transparenttextures.com/patterns/rice-paper-3.png');
+      font-family: "PingFang TC", "Heiti TC", "Microsoft JhengHei", serif;
+    }
+
+    /* 珍珠的光澤動態特效 */
+    .pearl-glow {
+      box-shadow: 0 0 20px 5px rgba(253, 251, 237, 0.8), inset -5px -5px 15px rgba(0,0,0,0.1);
+      background: radial-gradient(circle at 35% 35%, #ffffff 0%, #fefcf3 40%, #e0d9b4 100%);
+      animation: floatPearl 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes floatPearl {
+      0% { transform: translateY(0px) scale(1); }
+      100% { transform: translateY(-8px) scale(1.03); }
+    }
+
+    /* 雕花木盒的精緻感 */
+    .lacquer-box {
+      background: linear-gradient(135deg, #4c1d1a 0%, #290b0a 100%);
+      border: 3px solid #d97706;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.4), inset 0 0 15px rgba(217, 119, 6, 0.2);
+    }
+
+    /* 錯誤選擇時的震動效果 */
+    .shake-anim {
+      animation: shake 0.4s ease-in-out;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+
+    /* 漸顯動畫 */
+    .fade-in-up {
+      animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="min-h-screen text-stone-800 flex flex-col items-center py-6 px-4 sm:px-8">
+
+  <div id="game-container" class="max-w-5xl w-full flex flex-col h-full fade-in-up">
+    
+    <!-- 頂部導覽列與思辨進度 -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end border-b-2 border-amber-800/20 pb-4 mb-6 gap-2">
+      <div>
+        <h1 class="text-3xl sm:text-4xl font-extrabold flex items-center gap-3 text-emerald-800 tracking-wider">
+          <i data-lucide="scale" class="w-8 h-8 sm:w-10 sm:h-10 text-amber-700"></i>
+          思辨之秤：買櫝還珠
+        </h1>
+        <p class="text-sm sm:text-base text-stone-600 mt-2 font-medium">
+          這是一場關於「價值本質」的古老衝突。請用理性天平，解構兩千年前的認知迷思。
+        </p>
+      </div>
+      <div class="text-right flex items-center gap-2 self-stretch sm:self-auto justify-between">
+        <span id="progress-tag" class="text-xs font-bold text-amber-800 bg-amber-100 border border-amber-300 px-3 py-1.5 rounded-full shadow-sm">
+          辯論階段：1 / 4
+        </span>
+      </div>
+    </div>
+
+    <!-- 遊戲互動雙排版佈局 -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8 items-stretch">
+      
+      <!-- 左側：情境與動態視覺區 -->
+      <div class="lg:col-span-5 flex flex-col bg-stone-100 rounded-2xl border border-stone-200 p-6 shadow-md justify-between min-h-[400px]">
+        <div>
+          <h3 class="text-sm font-bold text-stone-500 uppercase tracking-widest mb-4 flex items-center gap-1.5">
+            <i data-lucide="eye" class="w-4 h-4"></i> 朝堂市集現狀
+          </h3>
+          <!-- 動態 SVG / CSS 互動模型：珍珠與雕花木盒 -->
+          <div class="relative w-full h-48 bg-stone-200/50 rounded-xl border border-stone-300/50 flex items-center justify-center overflow-hidden py-4">
+            
+            <!-- 雕花木盒 (櫝) -->
+            <div id="lacquer-box-visual" class="lacquer-box w-36 h-36 rounded-xl flex flex-col items-center justify-end p-2 transition-all duration-500 relative">
+              <!-- 木盒上的雕飾紋路 -->
+              <div class="absolute inset-2 border border-dashed border-amber-500/40 rounded-lg pointer-events-none"></div>
+              <div class="absolute top-2 text-center text-[9px] text-amber-500/70 font-bold tracking-widest">桂木薰香．翠羽裝飾</div>
+              
+              <!-- 珍珠 (珠) -->
+              <div id="pearl-visual" class="pearl-glow w-16 h-16 rounded-full flex-shrink-0 mb-4 transition-all duration-700 ease-in-out z-10"></div>
+            </div>
+
+            <!-- 還珠託盤 (當珍珠被歸還時，會移動到這裏) -->
+            <div id="return-plate" class="absolute right-6 bottom-4 w-20 h-6 bg-stone-300 rounded-full border-b-4 border-stone-400 flex items-center justify-center opacity-0 transition-all duration-700">
+              <span class="text-[9px] text-stone-600 font-bold tracking-widest uppercase">歸還珍珠</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 人物對話對立視角 -->
+        <div class="mt-6 space-y-4">
+          <!-- 楚國商人 -->
+          <div id="merchant-bubble" class="flex gap-3 items-start transition-opacity duration-300">
+            <div class="w-10 h-10 bg-amber-800 rounded-full border-2 border-amber-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+              楚
+            </div>
+            <div class="bg-white p-3 rounded-xl border border-amber-800/20 shadow-sm relative">
+              <div class="absolute w-3 h-3 bg-white border-b border-l border-amber-800/10 rotate-45 -left-1.5 top-3.5"></div>
+              <p class="text-xs text-amber-900 font-bold mb-0.5">楚國珠寶商：</p>
+              <p id="merchant-speech" class="text-xs text-stone-600 leading-relaxed italic">
+                「這顆珍珠耗費十年光陰才尋得，這木盒不過是盛裝之器，你怎能留下木盒卻把無價珍珠退給我？」
+              </p>
+            </div>
+          </div>
+
+          <!-- 鄭國買家 -->
+          <div id="buyer-bubble" class="flex gap-3 items-start justify-end transition-opacity duration-300">
+            <div class="bg-white p-3 rounded-xl border border-emerald-800/20 shadow-sm relative order-1">
+              <div class="absolute w-3 h-3 bg-white border-t border-r border-emerald-800/10 rotate-45 -right-1.5 top-3.5"></div>
+              <p class="text-xs text-emerald-900 font-bold mb-0.5 text-right">鄭國買家：</p>
+              <p id="buyer-speech" class="text-xs text-stone-600 leading-relaxed italic">
+                「我需要的是一個精緻高貴的薰香木盒來彰顯我的地位，這珍珠對我毫無用處，我退還它是極其理性的！」
+              </p>
+            </div>
+            <div class="w-10 h-10 bg-emerald-800 rounded-full border-2 border-emerald-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0 order-2">
+              鄭
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右側：思辨與選擇區 -->
+      <div id="speculation-panel" class="lg:col-span-7 flex flex-col justify-between">
+        <div>
+          <div class="bg-stone-100 rounded-2xl p-6 border border-stone-200 shadow-sm mb-6">
+            <h2 id="stage-title" class="text-xl font-extrabold text-emerald-900 mb-2">
+              第一階段：價值的本質究竟為何？
+            </h2>
+            <p id="stage-desc" class="text-sm text-stone-600 leading-relaxed">
+              楚國商人認為「珠重於櫝」，這符合直覺。但鄭國買家堅持「櫝重於珠」。身為仲裁官，這引申出哪一個核心哲學與邏輯觀點？
+            </p>
+          </div>
+
+          <h3 class="text-sm font-bold text-stone-500 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+            <i data-lucide="brain-circuit" class="w-4 h-4 text-emerald-700"></i> 請選擇最符合邏輯的 spec 分析：
+          </h3>
+
+          <div id="options-box" class="flex flex-col gap-3">
+            <!-- 由 JavaScript 動態生成選項 -->
+          </div>
+        </div>
+
+        <!-- 下方動作回饋區 -->
+        <div id="feedback-area" class="hidden mt-6 p-5 rounded-xl border-2 transition-all duration-300 fade-in-up">
+          <div class="flex items-start gap-3">
+            <div id="feedback-icon-container" class="mt-1 flex-shrink-0">
+              <!-- 動態圖示 -->
+            </div>
+            <div class="flex-grow">
+              <h4 id="feedback-headline" class="font-extrabold text-lg mb-1">判定標題</h4>
+              <p id="feedback-detail" class="text-sm leading-relaxed mb-4">分析說明</p>
+              
+              <!-- 延伸學術/哲學解析 -->
+              <div id="theory-box" class="bg-stone-50/70 p-4 rounded-lg border border-stone-200 text-xs text-stone-600 leading-relaxed">
+                <!-- 學術解析 -->
+              </div>
+            </div>
+          </div>
+
+          <button id="next-stage-btn" onclick="goToNextStage()" class="mt-6 w-full bg-emerald-800 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-md">
+            <span>前進下一思辨階段</span>
+            <i data-lucide="chevron-right" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- 結算評估畫面 -->
+  <div id="ending-panel" class="max-w-3xl w-full bg-white rounded-2xl shadow-2xl p-8 sm:p-12 border-2 border-emerald-800 hidden flex-col items-center text-center my-auto fade-in-up">
+    <div class="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mb-6 border-2 border-emerald-500 text-emerald-700">
+      <i data-lucide="award" class="w-12 h-12"></i>
+    </div>
+    <h1 class="text-3xl sm:text-4xl font-black text-emerald-900 mb-4 tracking-wider">思辨大成：解構「買櫝還珠」</h1>
+    
+    <div class="text-left space-y-4 text-stone-700 text-sm sm:text-base leading-relaxed bg-stone-50 p-6 rounded-xl border border-stone-200 mb-8 max-h-[400px] overflow-y-auto">
+      <p>
+        恭喜你完成了所有階段的思辨調解！你沒有流於庸俗地去批判任何一方的愚昧，而是成功看穿了隱藏在兩千年前寓言背後的**核心邏輯與經濟博弈**。
+      </p>
+      <div class="border-l-4 border-emerald-600 pl-4 py-1 bg-emerald-50/50">
+        <p class="font-bold text-emerald-900">【理性仲裁總結】</p>
+        <p class="text-xs text-stone-600 mt-1">
+          「買櫝還珠」並非愚蠢的展現，而是<strong>主觀效用極大化</strong>的經典案例。
+          對鄭人而言，珍珠的觀賞或變現價值，比不上精緻木盒對其社交、禮儀層面帶來的邊際效用；
+          對楚人而言，回收珍珠意味著他用極低的成本（一個盒子）換取了高溢價，並拿回了最高價值的核心商品。
+          這是一場在資訊不對稱與主觀偏好下，達成<strong>柏拉圖改善 (Pareto Improvement)</strong>的奇特雙贏交易。
+        </p>
+      </div>
+      <p>
+        在當代社會中，這種「框架效應」依然隨處可見：從奢侈品的精美包裝、手機的高端殼套，到社群媒體上精緻的虛擬形象。
+        <strong class="text-emerald-800 font-bold">學會區分「珍珠（本質）」與「木盒（媒介）」，並尊重每個主體獨特的效用需求，是現代邏輯思辨的核心能力。</strong>
+      </p>
+    </div>
+
+    <button onclick="restartGame()" class="flex items-center justify-center gap-2 bg-emerald-800 hover:bg-emerald-700 text-white px-8 py-3 rounded-lg font-bold transition-all shadow-lg transform hover:-translate-y-0.5">
+      <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+      <span>重新審視這場交易</span>
+    </button>
+  </div>
+
+  <script>
+    // 遊戲關卡資料：全盤拆解「買櫝還珠」的邏輯與哲學觀點
+    const STAGES = [
+      {
+        id: 1,
+        title: "第一階段：價值的本質究竟為何？",
+        description: "楚商認為「珍珠」才具有客觀的高昂價值；鄭人則認為雕花「木盒」對他來說更有意義。這反映了哪一種哲學/經濟學的價值爭端？",
+        options: [
+          {
+            text: "【客觀價值論 vs 主觀價值論】",
+            isCorrect: true,
+            feedback: "精確！這完美對應了勞動/客觀價值論與主觀價值論（Subjective Theory of Value）的衝突。商品的價值並非由其物理本質（珍珠）決定，而是由買家對其『主觀效用』的評估決定。對不需珠寶的鄭人而言，珍珠的邊際效用幾近於零，木盒的實用與炫耀價值卻極高。"
+          },
+          {
+            text: "【訴諸無知的謬誤 (Appeal to Ignorance)】",
+            isCorrect: false,
+            feedback: "判定錯誤。訴諸無知是指因為無法證明某事不存在，就斷言其存在。這裡雙方是在爭論『價值的判定標準』，與無知謬誤無涉。"
+          },
+          {
+            text: "【合成謬誤 (Fallacy of Composition)】",
+            isCorrect: false,
+            feedback: "判定錯誤。合成謬誤是指誤以為個體的局部屬性必然等同於整體的屬性。雙方的爭執點在於價值的主客觀認知，並非局部與整體的推論。"
+          }
+        ],
+        theory: "【主觀效用理論】：在現代微觀經濟學中，一個物品的『價值』取決於消費者的主觀偏好。鄭人將珍珠退還，是極具理性地在滿足自己對於『收納/禮儀容器』的需求，避免了持有無效用資產（珍珠）的持有成本。",
+        animationState: "inside" // 珍珠在木盒內
+      },
+      {
+        id: 2,
+        title: "第二階段：手段與目的的迷思",
+        description: "楚人精雕細琢木盒，是為了把珍珠賣出去（木盒是手段，賣珠是目的）。然而最終木盒喧賓奪主，讓鄭人買盒還珠。這在邏輯上犯了什麼謬誤？",
+        options: [
+          {
+            text: "【手段與目的之倒置 (Inversion of Means & Ends)】",
+            isCorrect: true,
+            feedback: "思維敏銳！楚人犯了過度包裝所導致的『手段與目的倒置』。原本作為附屬、用來襯托珍珠（目的）的包裝盒（手段），因為其精美程度超越了本體，反倒成為了獨立的目的。這在產品設計與傳播學上是非常經典的邏輯失效。"
+          },
+          {
+            text: "【稻草人謬誤 (Straw Man Fallacy)】",
+            isCorrect: false,
+            feedback: "判定錯誤。稻草人謬誤是指扭曲、誇大對方的論點來進行攻擊。這裡討論的是楚商的包裝策略與鄭人購買行為的因果錯置。"
+          },
+          {
+            text: "【滑坡謬誤 (Slippery Slope)】",
+            isCorrect: false,
+            feedback: "判定錯誤。滑坡謬誤是沒有合理因果地推導出一連串可怕的連鎖反應。楚人過度包裝木盒是直接造成買家注意力轉移的原因，並非滑坡。"
+          }
+        ],
+        theory: "【媒介即訊息 (The Medium is the Message)】：傳播學家麥克魯漢曾指出，承載內容的媒介往往比內容本身更能塑造人的行為。楚人包裝的『櫝』超越了內容『珠』，使媒介本身成為了消費者唯一渴求的產品。",
+        animationState: "separating" // 珍珠開始從木盒移出
+      },
+      {
+        id: 3,
+        title: "第三階段：框架效應對決理性決策",
+        description: "旁觀者嘲笑鄭人：『你付了珍珠加木盒的總價，卻只拿走便宜的木盒，簡直虧大了！』這句話在決策理論上隱含了哪種偏誤？",
+        options: [
+          {
+            text: "【沉沒成本偏誤與框架效應 (Framing Effect)】",
+            isCorrect: true,
+            feedback: "完全正確！旁觀者被定價的『框架』限制了。他們認為不拿珍珠是『損失』。但對鄭人而言，交易已經完成，珍珠是多餘的『零效用財產』。如果帶走珍珠，他可能還要承擔保管、防盜的安全成本。將無用之物歸還（甚至可以當作善意回饋給賣家），是排除無效用資產的冷靜決策。"
+          },
+          {
+            text: "【假兩難推理 (False Dilemma)】",
+            isCorrect: false,
+            feedback: "判定錯誤。假兩難是指忽略其他可能性，強行把選擇簡化為非黑即白的兩種。旁觀者的說法只是一種盲從定價框架的表現，而非製造選擇陷阱。"
+          },
+          {
+            text: "【訴諸權威謬誤 (Appeal to Authority)】",
+            isCorrect: false,
+            feedback: "判定錯誤。這裡並未牽涉任何權威人物的言論或盲從權威的邏輯缺陷。"
+          }
+        ],
+        theory: "【框架效應 (Framing Effect)】：人們在做決策時，容易受到選擇被呈現的方式（包裝與定價）影響。旁觀者以『總定價』為決策框架；而鄭人則以自身『真實需求與機會成本』為決策框架，後者在實質上更接近純粹理性。",
+        animationState: "returned" // 珍珠完全歸還
+      },
+      {
+        id: 4,
+        title: "第四階段：雙贏博弈的意外結局",
+        description: "這場交易結束後：楚商拿回了無價的珍珠，且賺到了木盒的溢價；鄭人如願得到了極其心儀的雕刻木盒。這在博弈論中代表了什麼現象？",
+        options: [
+          {
+            text: "【非零和博弈與柏拉圖改善 (Pareto Improvement)】",
+            isCorrect: true,
+            feedback: "極致的理性洞察！儘管被世人嘲諷，但在博弈論中，這是一場完美的『非零和博弈』。在沒有損害任何一方利益的前提下，雙方的整體福利都得到了提升，這達成了『柏拉圖改善』。世俗眼中的愚蠢，在邏輯與效益流動中卻是最和諧的雙贏交易！"
+          },
+          {
+            text: "【零和博弈 (Zero-Sum Game)】",
+            isCorrect: false,
+            feedback: "判定錯誤。零和博弈是指一方所得必為另一方所失（總和為零）。但在本案中，雙方都拿到了主觀價值更高的物品，總效用顯著增加。"
+          },
+          {
+            text: "【囚徒困境 (Prisoner's Dilemma)】",
+            isCorrect: false,
+            feedback: "判定錯誤。囚徒困境是指個體追求理性最大化，卻導致集體最壞結果。本案雙方進行了順暢的溝通與自願交易，達成了最優解。"
+          }
+        ],
+        theory: "【交易的剩餘與價值創造】：當物品流向對其主觀估值最高的人手中時，價值便被創造了。木盒流向了最懂得欣賞其工藝的鄭人，珍珠回到了擁有變現能力的楚商手中，兩者的主觀剩餘都得到了最大化釋放。",
+        animationState: "winwin" // 完美的雙贏和諧狀態
+      }
+    ];
+
+    let currentStageIndex = 0;
+    let selectedOptionIndex = null;
+    let isStageDone = false;
+
+    // 更新左側的動態 SVG 視覺狀態
+    function updateVisuals(state) {
+      const pearl = document.getElementById('pearl-visual');
+      const box = document.getElementById('lacquer-box-visual');
+      const plate = document.getElementById('return-plate');
+
+      if (state === 'inside') {
+        // 珍珠在木盒內，木盒和珍珠合為一體
+        pearl.style.transform = 'translateY(0) scale(1)';
+        pearl.style.opacity = '1';
+        box.classList.remove('border-emerald-500');
+        box.classList.add('border-amber-500');
+        plate.style.opacity = '0';
+      } else if (state === 'separating') {
+        // 珍珠浮起，顯得快要脫離木盒
+        pearl.style.transform = 'translateY(-30px) scale(0.9)';
+        pearl.style.opacity = '0.9';
+        plate.style.opacity = '0.5';
+      } else if (state === 'returned') {
+        // 珍珠滑到右邊託盤，木盒獨立
+        pearl.style.transform = 'translate(100px, 35px) scale(0.8)';
+        pearl.style.opacity = '1';
+        box.classList.remove('border-amber-500');
+        box.classList.add('border-emerald-500');
+        plate.style.opacity = '1';
+      } else if (state === 'winwin') {
+        // 雙贏狀態：兩者皆發光
+        pearl.style.transform = 'translate(100px, 35px) scale(0.85)';
+        box.style.transform = 'scale(1.05)';
+        box.style.boxShadow = '0 15px 35px rgba(16, 185, 129, 0.3)';
+      }
+    }
+
+    // 更新對話語句
+    function updateDialogue(stageIndex) {
+      const merchantSpeech = document.getElementById('merchant-speech');
+      const buyerSpeech = document.getElementById('buyer-speech');
+
+      if (stageIndex === 0) {
+        merchantSpeech.textContent = "「這顆珍珠耗費十年光陰才尋得，這木盒不過是盛裝之器，你怎能留下木盒卻把無價珍珠退給我？」";
+        buyerSpeech.textContent = "「我需要的是一個精緻高貴的薰香木盒來彰顯我的地位，這珍珠對我毫無用處，我退還它是極其理性的！」";
+      } else if (stageIndex === 1) {
+        merchantSpeech.textContent = "「我打造雕花、薰香的蘭桂木盒，是為了讓我的珍珠顯得更加高貴。盒子是陪襯，珍珠才是主角啊！」";
+        buyerSpeech.textContent = "「但你把陪襯做得如此美妙，以致於我根本不在意裡面的石頭。你混淆了你交易的本質目的！」";
+      } else if (stageIndex === 2) {
+        merchantSpeech.textContent = "「買了兩個人的分量，卻只帶走便宜的一個，全天下的人都會笑你做了虧本買賣！」";
+        buyerSpeech.textContent = "「帶走我不需要的沉重珠寶反而需要更多看管成本。放手無效資產，才是智者的決策框架。」";
+      } else if (stageIndex === 3) {
+        merchantSpeech.textContent = "「妙哉，我平白賺取了高昂的木盒費用，又拿回了極其珍貴的明珠，我好像並未受損。」";
+        buyerSpeech.textContent = "「而我也用我可以承受的價格，得到了天下無雙的雕飾美匣。這場交易沒有輸家。」";
+      }
+    }
+
+    // 渲染目前的關卡
+    function renderStage() {
+      const stage = STAGES[currentStageIndex];
+      isStageDone = false;
+      selectedOptionIndex = null;
+
+      // 更新進度條與文字
+      document.getElementById('progress-tag').textContent = `辯論階段：${currentStageIndex + 1} / ${STAGES.length}`;
+      document.getElementById('stage-title').textContent = stage.title;
+      document.getElementById('stage-desc').textContent = stage.description;
+      
+      // 隱藏回饋區
+      const feedback = document.getElementById('feedback-area');
+      feedback.classList.add('hidden');
+
+      // 渲染動態視覺與對話
+      updateVisuals(stage.animationState);
+      updateDialogue(currentStageIndex);
+
+      // 渲染選項
+      const optionsBox = document.getElementById('options-box');
+      optionsBox.innerHTML = '';
+
+      stage.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.onclick = () => selectOption(idx);
+        btn.className = "w-full text-left p-4 rounded-xl border-2 border-stone-300 bg-white hover:border-emerald-600 hover:bg-stone-50 transition-all duration-200 flex items-start gap-3 shadow-sm option-button";
+        
+        btn.innerHTML = `
+          <span class="w-6 h-6 rounded-full border border-stone-400 flex items-center justify-center text-xs font-extrabold text-stone-500 bg-stone-50 flex-shrink-0 mt-0.5">
+            ${String.fromCharCode(65 + idx)}
+          </span>
+          <span class="text-sm sm:text-base text-stone-700 font-bold leading-relaxed">${opt.text}</span>
+        `;
+        optionsBox.appendChild(btn);
+      });
+
+      lucide.createIcons();
+    }
+
+    // 處理選項點擊
+    function selectOption(index) {
+      if (isStageDone) return;
+
+      const stage = STAGES[currentStageIndex];
+      const opt = stage.options[index];
+      const optionButtons = document.querySelectorAll('.option-button');
+
+      // 更新選項按鈕樣式
+      optionButtons.forEach((btn, idx) => {
+        btn.disabled = true;
+        btn.classList.remove('hover:border-emerald-600', 'hover:bg-stone-50');
+
+        if (idx === index) {
+          if (opt.isCorrect) {
+            btn.classList.add('bg-emerald-50', 'border-emerald-600', 'text-emerald-900');
+          } else {
+            btn.classList.add('bg-rose-50', 'border-rose-500', 'text-rose-900');
+            // 答錯觸發木盒震動動畫
+            document.getElementById('lacquer-box-visual').classList.add('shake-anim');
+            setTimeout(() => {
+              document.getElementById('lacquer-box-visual').classList.remove('shake-anim');
+            }, 400);
+          }
+        } else {
+          btn.classList.add('opacity-40');
+        }
+      });
+
+      // 顯示回饋區域
+      const feedback = document.getElementById('feedback-area');
+      const iconContainer = document.getElementById('feedback-icon-container');
+      const headline = document.getElementById('feedback-headline');
+      const detail = document.getElementById('feedback-detail');
+      const theoryBox = document.getElementById('theory-box');
+
+      feedback.classList.remove('hidden');
+      detail.textContent = opt.feedback;
+      theoryBox.textContent = stage.theory;
+
+      if (opt.isCorrect) {
+        isStageDone = true;
+        feedback.className = "mt-6 p-5 rounded-xl border-2 bg-emerald-50/80 border-emerald-400 text-emerald-900 fade-in-up flex flex-col sm:flex-row items-start gap-3";
+        iconContainer.innerHTML = `<i data-lucide="check-circle" class="w-6 h-6 text-emerald-600"></i>`;
+        headline.textContent = "判定成功：合乎邏輯";
+        headline.className = "font-extrabold text-lg text-emerald-900 mb-1";
+        
+        // 如果是最後一關，更改下一步按鈕的文字
+        const nextBtn = document.getElementById('next-stage-btn');
+        const iconEl = nextBtn.querySelector('i, svg');
+        if (currentStageIndex === STAGES.length - 1) {
+          nextBtn.querySelector('span').textContent = "進入最終仲裁評估";
+          if (iconEl) iconEl.setAttribute('data-lucide', 'award');
+        } else {
+          nextBtn.querySelector('span').textContent = "前進下一思辨階段";
+          if (iconEl) iconEl.setAttribute('data-lucide', 'chevron-right');
+        }
+      } else {
+        feedback.className = "mt-6 p-5 rounded-xl border-2 bg-rose-50/80 border-rose-300 text-rose-950 fade-in-up flex flex-col sm:flex-row items-start gap-3";
+        iconContainer.innerHTML = `<i data-lucide="x-circle" class="w-6 h-6 text-rose-500"></i>`;
+        headline.textContent = "思維盲區：邏輯不通";
+        headline.className = "font-extrabold text-lg text-rose-900 mb-1";
+
+        // 提供重新嘗試的選項
+        const nextBtn = document.getElementById('next-stage-btn');
+        const iconEl = nextBtn.querySelector('i, svg');
+        nextBtn.querySelector('span').textContent = "重新審視本階段";
+        if (iconEl) iconEl.setAttribute('data-lucide', 'rotate-ccw');
+        
+        // 臨時將前進按鈕重置為當前關卡
+        nextBtn.onclick = function() {
+          renderStage();
+          nextBtn.onclick = goToNextStage; // 恢復正常跳關
+        };
+      }
+
+      lucide.createIcons();
+    }
+
+    // 切換到下一關
+    function goToNextStage() {
+      if (currentStageIndex < STAGES.length - 1) {
+        currentStageIndex++;
+        renderStage();
+      } else {
+        // 進入結束結算畫面
+        document.getElementById('game-container').classList.add('hidden');
+        document.getElementById('ending-panel').classList.remove('hidden');
+        document.getElementById('ending-panel').classList.add('flex');
+        lucide.createIcons();
+      }
+    }
+
+    // 重新開始遊戲
+    function restartGame() {
+      currentStageIndex = 0;
+      isStageDone = false;
+      document.getElementById('ending-panel').classList.add('hidden');
+      document.getElementById('ending-panel').classList.remove('flex');
+      document.getElementById('game-container').classList.remove('hidden');
+      
+      // 重置木盒縮放與發光
+      const box = document.getElementById('lacquer-box-visual');
+      box.style.transform = 'scale(1)';
+      box.style.boxShadow = '0 15px 35px rgba(0,0,0,0.4)';
+
+      renderStage();
+    }
+
+    // 初始加載
+    document.addEventListener('DOMContentLoaded', () => {
+      renderStage();
+    });
+  </script>
+</body>
+</html>
